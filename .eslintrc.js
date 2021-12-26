@@ -47,5 +47,7 @@ module.exports = {
     suite: 'readonly',
     test: 'readonly',
     $: 'readonly',
+    before: 'readonly',
+    after: 'readonly',
   },
 };

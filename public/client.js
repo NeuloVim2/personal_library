@@ -1,3 +1,5 @@
+const { html } = require('mocha/lib/reporters');
+
 $(document).ready(() => {
   const items = [];
   let itemsRaw = [];
