@@ -6,8 +6,6 @@
  *
  */
 
-// global suite, test
-
 const chaiHttp = require('chai-http');
 const chai = require('chai');
 
@@ -55,11 +53,41 @@ suite('Functional Tests', () => {
       'POST /api/books with title => create book object/expect book object',
       () => {
         test('Test POST /api/books with title', (done) => {
-          // done();
+          chai
+            .request(server)
+            .post('/api/books')
+            .type('form')
+            .send({ title: 'Test Book Title' })
+            .end((err, res) => {
+              assert.equal(res.status, 200);
+              assert.isObject(res.body, 'response should be an object');
+              assert.property(res.body, 'title', 'Book should contain title');
+              assert.property(
+                res.body,
+                'title',
+                'Books in array should contain title'
+              );
+              assert.property(res.body, '_id', 'Book should contain _id');
+              done();
+            });
         });
 
         test('Test POST /api/books with no title given', (done) => {
-          // done();
+          chai
+            .request(server)
+            .post('/api/books')
+            .type('form')
+            .send({})
+            .end((err, res) => {
+              assert.equal(res.status, 200);
+              assert.isString(res.body, 'response should be a string');
+              assert.strictEqual(
+                res.body,
+                'missing required field title',
+                'response should contain "missing required field title" error message'
+              );
+              done();
+            });
         });
       }
     );

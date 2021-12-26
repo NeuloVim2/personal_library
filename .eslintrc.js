@@ -43,4 +43,9 @@ module.exports = {
       },
     ],
   },
+  globals: {
+    suite: 'readonly',
+    test: 'readonly',
+    $: 'readonly',
+  },
 };
