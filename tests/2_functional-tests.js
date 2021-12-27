@@ -23,6 +23,8 @@ const testData = [
   { title: 'Test Book Title 2', comments: ['comment 1 for test data 2'] },
 ];
 
+let testDataId = '';
+
 suite('Functional Tests', () => {
   /*
    * ----[EXAMPLE TEST]----
@@ -80,6 +82,7 @@ suite('Functional Tests', () => {
                 testData[0].title,
                 "books' title is not vallid"
               );
+              testDataId = res.body._id;
               done();
             });
         });
@@ -122,49 +125,62 @@ suite('Functional Tests', () => {
       });
     });
 
-    suite('DELETE /api/books => delete all books from db', () => {
-      test('TEST DELETE /api/books', (done) => {
+    // suite('DELETE /api/books => delete all books from db', () => {
+    //   test('Test DELETE /api/books', (done) => {
+    //     chai
+    //       .request(server)
+    //       .delete('/api/books')
+    //       .end((err, res) => {
+    //         assert.equal(res.status, 200);
+    //         assert.isString(res.text, 'response should be a string');
+    //         assert.strictEqual(
+    //           res.text,
+    //           'complete delete successful',
+    //           'response should contain "complete delete successful" error message'
+    //         );
+    //         done();
+    //       });
+    //   });
+    // });
+
+    suite('GET /api/books/[id] => book object with [id]', () => {
+      test('Test GET /api/books/[id] with id not in db', (done) => {
         chai
           .request(server)
-          .delete('/api/books')
+          .get('/api/books/61ca25e90299926defdad920')
           .end((err, res) => {
             assert.equal(res.status, 200);
             assert.isString(res.text, 'response should be a string');
             assert.strictEqual(
               res.text,
-              'complete delete successful',
-              'response should contain "complete delete successful" error message'
+              'no book exists',
+              'response should contain "no book exists" error message'
+            );
+            done();
+          });
+      });
+
+      test('Test GET /api/books/[id] with valid id in db', (done) => {
+        chai
+          .request(server)
+          .get(`/api/books/${testDataId}`)
+          .end((err, res) => {
+            assert.equal(res.status, 200);
+            assert.isObject(res.body, 'response should be an array');
+            assert.hasAllKeys(
+              res.body,
+              ['title', '_id', 'comments'],
+              'one or more properties are not presented in the object'
+            );
+            assert.strictEqual(
+              testDataId,
+              res.body._id,
+              "_id' should be equel"
             );
             done();
           });
       });
     });
-
-    // suite('GET /api/books/[id] => book object with [id]', () => {
-    //   before((done) => {
-    //     chai
-    //       .request(server)
-    //       .post('/api/books')
-    //       .type('form')
-    //       .send({ title: testData[0].title })
-    //       .end((err, res) => done());
-
-    //     chai
-    //       .request(server)
-    //       .post('/api/books')
-    //       .type('form')
-    //       .send{ title: testData[1].title })
-    //       .end((err, res) => done());
-    //   });
-
-    //   test('Test GET /api/books/[id] with id not in db', (done) => {
-    //     // done();
-    //   });
-
-    //   test('Test GET /api/books/[id] with valid id in db', (done) => {
-    //     // done();
-    //   });
-    // });
 
     // suite(
     //   'POST /api/books/[id] => add comment/expect book object with id',
