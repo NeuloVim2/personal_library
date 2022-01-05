@@ -1,5 +1,3 @@
-const { html } = require('mocha/lib/reporters');
-
 $(document).ready(() => {
   const items = [];
   let itemsRaw = [];
@@ -79,6 +77,7 @@ $(document).ready(() => {
       dataType: 'json',
       data: $('#newBookForm').serialize(),
       success: function (data) {
+        console.log(data);
         // update list
       },
     });

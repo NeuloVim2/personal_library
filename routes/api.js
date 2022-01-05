@@ -73,11 +73,43 @@ module.exports = function (app) {
     .post((req, res) => {
       const bookid = req.params.id;
       const { comment } = req.body;
+      if (comment) {
+        Book.findById(bookid, (err, book) => {
+          if (err) {
+            console.error(err);
+          }
+          if (book) {
+            book.comments.push(comment);
+            book.save((err, savedDoc) => {
+              if (err) {
+                console.log(err);
+              }
+              const { _id, title, comments } = savedDoc;
+              return res.json({ _id, title, comments });
+            });
+          } else {
+            res.send('no book exists');
+          }
+        });
+      } else {
+        res.send('missing required field comment');
+      }
       // json res format same as .get
     })
 
     .delete((req, res) => {
       const bookid = req.params.id;
+      Book.findById(bookid, (err, doc) => {
+        if (err) console.log(err);
+        if (doc) {
+          doc.remove((err, deleted) => {
+            if (err) console.log(err);
+            res.send('delete successful');
+          });
+        } else {
+          res.send('no book exists');
+        }
+      });
       // if successful response will be 'delete successful'
     });
 };
