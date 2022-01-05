@@ -5,111 +5,18 @@
  *
  *
  */
-const Book = require('../db/models/Book');
+const BookControllers = require('../controllers/BookControllers');
 
 module.exports = function (app) {
   app
     .route('/api/books')
-    .get((req, res) => {
-      Book.find({})
-        .select('-__v')
-        .exec((err, books) => {
-          if (err) {
-            console.log(err);
-          }
-          res.json(
-            books.map((elem) => {
-              const { title, _id } = elem;
-              return { title, _id, commentcount: elem.comments.length };
-            })
-          );
-        });
-      // response will be array of book objects
-      // json res format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
-    })
-
-    .post((req, res) => {
-      const { title } = req.body;
-      if (!title) {
-        return res.send('missing required field title');
-      }
-      return Book.create({ title: title }, (err, doc) => {
-        if (err) {
-          console.log('unable to save book. Got the error', err);
-        }
-        res.json({ title: doc.title, _id: doc._id });
-      });
-      // response will contain new book object including atleast _id and title
-    })
-
-    .delete(
-      (req, res) =>
-        Book.deleteMany({}, (err, count) => {
-          if (err) console.log(err);
-          // console.log('documents successfuly deleted', count);
-          res.send('complete delete successful');
-        })
-      // if successful response will be 'complete delete successful'
-    );
+    .get(BookControllers.getBooks)
+    .post(BookControllers.addBook)
+    .delete(BookControllers.deleteAllBooks);
 
   app
     .route('/api/books/:id')
-    .get((req, res) => {
-      const bookid = req.params.id;
-      Book.findById(bookid)
-        .select('-__v')
-        .exec((err, book) => {
-          if (err) {
-            return console.log(err);
-          }
-          if (!book) {
-            return res.send('no book exists');
-          }
-          return res.json(book);
-        });
-      // json res format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
-    })
-
-    .post((req, res) => {
-      const bookid = req.params.id;
-      const { comment } = req.body;
-      if (comment) {
-        Book.findById(bookid, (err, book) => {
-          if (err) {
-            console.error(err);
-          }
-          if (book) {
-            book.comments.push(comment);
-            book.save((err, savedDoc) => {
-              if (err) {
-                console.log(err);
-              }
-              const { _id, title, comments } = savedDoc;
-              return res.json({ _id, title, comments });
-            });
-          } else {
-            res.send('no book exists');
-          }
-        });
-      } else {
-        res.send('missing required field comment');
-      }
-      // json res format same as .get
-    })
-
-    .delete((req, res) => {
-      const bookid = req.params.id;
-      Book.findById(bookid, (err, doc) => {
-        if (err) console.log(err);
-        if (doc) {
-          doc.remove((err, deleted) => {
-            if (err) console.log(err);
-            res.send('delete successful');
-          });
-        } else {
-          res.send('no book exists');
-        }
-      });
-      // if successful response will be 'delete successful'
-    });
+    .get(BookControllers.getBook)
+    .post(BookControllers.addBookComment)
+    .delete(BookControllers.deleteBook);
 };
